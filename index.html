@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reto Obstétrico</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f4e8ff, #e6f7ff);
+    color: #222;
+}
+
+.contenedor {
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+}
+
+.tarjeta {
+    background: white;
+    padding: 25px;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.12);
+}
+
+h1 {
+    text-align: center;
+    color: #7026b9;
+}
+
+.subtitulo {
+    text-align: center;
+    color: #666;
+}
+
+.puntaje {
+    text-align: right;
+    font-weight: bold;
+    color: #7026b9;
+}
+
+.progreso {
+    height: 10px;
+    background: #eee;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.progreso div {
+    height: 100%;
+    width: 0%;
+    background: #7026b9;
+    border-radius: 10px;
+}
+
+.categoria {
+    color: #7026b9;
+    font-weight: bold;
+}
+
+.pregunta {
+    font-size: 21px;
+    font-weight: bold;
+    line-height: 1.4;
+    margin: 20px 0;
+}
+
+.respuestas {
+    display: grid;
+    gap: 12px;
+}
+
+.respuesta {
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 15px;
+    background: #fafafa;
+    cursor: pointer;
+    text-align: left;
+    font-size: 16px;
+}
+
+.respuesta:hover {
+    background: #f1e6ff;
+}
+
+.respuesta:disabled {
+    cursor: default;
+}
+
+.feedback {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 15px;
+}
+
+.boton {
+    display: none;
+    margin-top: 18px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 15px;
+    background: #7026b9;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.resultado {
+    text-align: center;
+}
+
+.numero {
+    font-size: 50px;
+    font-weight: bold;
+    color: #7026b9;
+}
+
+.aviso {
+    margin-top: 25px;
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<div class="tarjeta">
+
+<h1>🩺 Reto Obstétrico</h1>
+
+<p class="subtitulo">
+Aprende Obstetricia jugando
+</p>
+
+<div class="puntaje">
+⭐ Puntaje: <span id="puntaje">0</span>
+</div>
+
+<div class="progreso">
+<div id="barra"></div>
+</div>
+
+<div id="juego"></div>
+
+<p class="aviso">
+Juego educativo para fines académicos. No sustituye protocolos ni indicaciones de un profesional de salud.
+</p>
+
+</div>
+
+</div>
+
+<script>
+
+const preguntas = [
+
+{
+categoria:"Embarazo",
+pregunta:"¿Cuál es una finalidad importante del control prenatal?",
+opciones:[
+"Detectar oportunamente riesgos maternos y fetales",
+"Determinar solamente el sexo fetal",
+"Evitar todos los cambios normales del embarazo",
+"Reemplazar una alimentación saludable"
+],
+correcta:0,
+explicacion:"El control prenatal permite vigilar la salud de la gestante y del feto y detectar riesgos oportunamente."
+},
+
+{
+categoria:"Embarazo",
+pregunta:"¿Qué instrumento se utiliza para medir la presión arterial?",
+opciones:[
+"Termómetro",
+"Tensiómetro",
+"Estetoscopio solamente",
+"Oxímetro"
+],
+correcta:1,
+explicacion:"El tensiómetro se utiliza para medir la presión arterial."
+},
+
+{
+categoria:"Obstetricia",
+pregunta:"¿Cuál es una característica de una atención obstétrica humanizada?",
+opciones:[
+"Comunicación respetuosa y empática",
+"Ignorar las dudas de la gestante",
+"Usar lenguaje incomprensible",
+"Tomar decisiones sin informar"
+],
+correcta:0,
+explicacion:"La atención humanizada respeta la dignidad, necesidades y participación de la gestante."
+},
+
+{
+categoria:"Parto",
+pregunta:"Durante el trabajo de parto, una acción profesional adecuada es:",
+opciones:[
+"Valorar a la gestante y vigilar su evolución",
+"Dejarla sin información",
+"Ignorar los signos de alarma",
+"Evitar toda comunicación"
+],
+correcta:0,
+explicacion:"La vigilancia y comunicación adecuada ayudan a brindar una atención segura y respetuosa."
+},
+
+{
+categoria:"Emergencia obstétrica",
+pregunta:"¿Qué debe priorizarse ante una emergencia obstétrica?",
+opciones:[
+"Reconocimiento rápido, valoración y actuación según protocolos",
+"Esperar sin evaluar",
+"Discutir frente a la paciente",
+"Ignorar los signos vitales"
+],
+correcta:0,
+explicacion:"Ante una emergencia se debe reconocer rápidamente la situación, valorar y actuar según los protocolos."
+},
+
+{
+categoria:"Puerperio",
+pregunta:"¿Qué es el puerperio?",
+opciones:[
+"Periodo posterior al parto en el que ocurren cambios de recuperación materna",
+"Periodo previo al embarazo",
+"Etapa exclusiva del recién nacido",
+"Momento anterior a la fecundación"
+],
+correcta:0,
+explicacion:"El puerperio es el periodo posterior al parto durante el cual el organismo materno experimenta cambios de recuperación."
+},
+
+{
+categoria:"Puerperio",
+pregunta:"¿Qué es importante durante el puerperio?",
+opciones:[
+"Reconocer signos de alarma y acudir a evaluación cuando corresponda",
+"Ignorar cualquier síntoma",
+"Evitar todo control posterior",
+"No informar ningún cambio"
+],
+correcta:0,
+explicacion:"La identificación de signos de alarma y los controles posteriores son importantes para la salud materna."
+},
+
+{
+categoria:"Recién nacido",
+pregunta:"¿Cuál es un objetivo de la evaluación inicial del recién nacido?",
+opciones:[
+"Identificar oportunamente signos de riesgo",
+"Evitar el contacto con la madre",
+"Suspender siempre la alimentación",
+"No observar su estado general"
+],
+correcta:0,
+explicacion:"La evaluación inicial permite identificar situaciones que pueden requerir atención."
+},
+
+{
+categoria:"Recién nacido",
+pregunta:"¿Qué medida ayuda a prevenir infecciones durante la atención?",
+opciones:[
+"Higiene adecuada de manos",
+"Compartir guantes entre pacientes",
+"No limpiar materiales",
+"Evitar la higiene"
+],
+correcta:0,
+explicacion:"La higiene de manos es una medida básica para reducir la transmisión de microorganismos."
+},
+
+{
+categoria:"Prevención",
+pregunta:"¿Qué ayuda a reducir el riesgo de infecciones de transmisión sexual?",
+opciones:[
+"Uso correcto del preservativo y pruebas según corresponda",
+"Compartir objetos personales",
+"Ignorar síntomas",
+"Evitar cualquier consulta de salud"
+],
+correcta:0,
+explicacion:"El uso correcto del preservativo y la atención sanitaria oportuna ayudan a prevenir y detectar ITS."
+}
+
+];
+
+let numero = 0;
+let puntaje = 0;
+
+const juego = document.getElementById("juego");
+const puntajeTexto = document.getElementById("puntaje");
+const barra = document.getElementById("barra");
+
+function mostrarPregunta(){
+
+    const p = preguntas[numero];
+
+    barra.style.width =
+    (numero / preguntas.length * 100) + "%";
+
+    juego.innerHTML = `
+
+    <div class="categoria">
+    ${p.categoria} · Pregunta ${numero + 1} de ${preguntas.length}
+    </div>
+
+    <div class="pregunta">
+    ${p.pregunta}
+    </div>
+
+    <div class="respuestas">
+
+    ${p.opciones.map((opcion, i) => `
+
+    <button class="respuesta"
+    onclick="responder(${i})">
+
+    ${String.fromCharCode(65+i)}. ${opcion}
+
+    </button>
+
+    `).join("")}
+
+    </div>
+
+    <div id="feedback" class="feedback"></div>
+
+    <button id="siguiente"
+    class="boton"
+    onclick="siguientePregunta()">
+
+    Siguiente →
+
+    </button>
+    `;
+
+}
+
+function responder(opcion){
+
+    const p = preguntas[numero];
+
+    const botones =
+    document.querySelectorAll(".respuesta");
+
+    botones.forEach(boton => {
+        boton.disabled = true;
+    });
+
+    const feedback =
+    document.getElementById("feedback");
+
+    if(opcion === p.correcta){
+
+        puntaje += 10;
+
+        puntajeTexto.textContent = puntaje;
+
+        feedback.style.background = "#e7f8ed";
+
+        feedback.innerHTML =
+        "✅ <b>¡Correcto!</b><br>" +
+        p.explicacion;
+
+    }else{
+
+        feedback.style.background = "#fff0f0";
+
+        feedback.innerHTML =
+        "❌ <b>Respuesta incorrecta.</b><br>" +
+        "Respuesta correcta: " +
+        p.opciones[p.correcta] +
+        "<br>" +
+        p.explicacion;
+    }
+
+    feedback.style.display = "block";
+
+    document.getElementById("siguiente")
+    .style.display = "inline-block";
+}
+
+function siguientePregunta(){
+
+    numero++;
+
+    if(numero < preguntas.length){
+
+        mostrarPregunta();
+
+    }else{
+
+        finalizar();
+    }
+}
+
+function finalizar(){
+
+    barra.style.width = "100%";
+
+    let mensaje;
+
+    if(puntaje >= 90){
+        mensaje = "🏆 ¡Excelente trabajo!";
+    }else if(puntaje >= 70){
+        mensaje = "👏 ¡Muy buen trabajo!";
+    }else if(puntaje >= 50){
+        mensaje = "📚 Buen esfuerzo, sigue practicando.";
+    }else{
+        mensaje = "💪 Sigue estudiando y vuelve a intentarlo.";
+    }
+
+    juego.innerHTML = `
+
+    <div class="resultado">
+
+    <div class="numero">
+    ${puntaje}/100
+    </div>
+
+    <h2>${mensaje}</h2>
+
+    <p>
+    Has completado el Reto Obstétrico.
+    </p>
+
+    <button
+    class="boton"
+    style="display:inline-block"
+    onclick="reiniciar()">
+
+    🔄 Volver a jugar
+
+    </button>
+
+    </div>
+
+    `;
+}
+
+function reiniciar(){
+
+    numero = 0;
+    puntaje = 0;
+
+    puntajeTexto.textContent = 0;
+
+    mostrarPregunta();
+}
+
+mostrarPregunta();
+
+</script>
+
+</body>
+</html>
